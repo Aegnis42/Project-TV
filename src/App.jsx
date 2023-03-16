@@ -1,6 +1,23 @@
 import "./global.css" 
 import style from "./App.module.css"
+import { TVShowAPI } from "./api/tv-show";
+import { useEffect, useState } from "react";
+
+
 export function App (){ 
+    const [currentTVShow, setCurrentTVShow] = useState();
+
+    async function fetchPopulars(){
+        const populars = await TVShowAPI.fetchpopulars();
+        if(populars.length>0){
+            setCurrentTVShow(populars[0])
+        }
+    }
+
+    useEffect(() => {
+        fetchPopulars()
+    }, []);
+    console.log("***", currentTVShow)
     return (
         <div className={style.main_container}> 
             <div className={style.header}>
@@ -10,7 +27,7 @@ export function App (){
                         <div>Subtitle</div>
                     </div>
                     <div className="col-md-12 col-lg-4">
-                        <input type="text" />
+                        <input style={{width: "100%"}} type="text" />
                     </div>
                 </div>
             </div> 
