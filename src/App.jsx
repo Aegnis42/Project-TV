@@ -6,8 +6,8 @@ import { BACKDROP_BASE_URL } from "./config";
 import { TVShowDetail } from "./components/TVShowDetail/TVShowDetail";
 import { Logo } from "./components/Logo/Logo";
 import logo from "./assets/images/logo.png"
-import { TVShowListItem } from "./components/TVShowListItems/TVShowListItem";
 import { TVShowList } from "./components/TVShowList/TVShowList";
+import { SearchBar } from "./components/SearchBar/SearchBar";
 
 
 export function App (){ 
@@ -15,17 +15,35 @@ export function App (){
     const [recommendationsList, setRecommendationList] = useState()
 
     async function fetchPopulars(){
+        try{
         const populars = await TVShowAPI.fetchPopulars();
         if(populars.length>0){
             setCurrentTVShow(populars[0])
         }
+    }catch{
+        alert("Error server");
+    }
     }
     async function fetchRecommendations(tvShowId){
+    try{
         const Recommendations = await TVShowAPI.fetchRecommendations(tvShowId);
         if(Recommendations.length>0) {
             setRecommendationList(Recommendations.slice(0, 10));
         }
+    }catch{
+        alert("Error server");
     }
+    }
+    async function searchTVShow(tvShowName) {
+    try{
+        const searchResponse = await TVShowAPI.fetchByTitle(tvShowName);
+        if (searchResponse.length > 0) {
+          setCurrentTVShow(searchResponse[0]);
+        }
+    }catch{
+        alert("Error server");
+    }
+      }
     useEffect(() => {
         fetchPopulars()
     }, []);
@@ -34,9 +52,6 @@ export function App (){
             fetchRecommendations(currentTVShow.id)
         }
     }, [currentTVShow]);
-    function setCurrentTVShowFromRecommendation(tvShow){
-        alert(JSON.stringify(tvShow))
-    }
     
     return (
         <div className={style.main_container}
@@ -52,13 +67,13 @@ export function App (){
                         subtitle="Find a show for me"/>
                     </div>
                     <div className="col-md-12 col-lg-4">
-                        <input style={{width: "100%"}} type="text" />
+                        <SearchBar onSubmit={searchTVShow} />
                     </div>
                 </div>
             </div> 
             <div className={style.tv_show_detail}>{currentTVShow && <TVShowDetail tvShow={currentTVShow}/>}</div> 
             <div className={style.recommendations}>{recommendationsList && recommendationsList.length > 0 && 
-                <TVShowList TVShowList ={recommendationsList}/>
+                <TVShowList onClickItem={setCurrentTVShow} TVShowList ={recommendationsList}/>
             }</div> 
         </div> 
     );
